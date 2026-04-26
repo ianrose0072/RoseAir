@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rose Air — Plan Your Full Trip | Melbourne, FL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #0b1f3a; --navy-mid: #142f57; --teal: oklch(0.60 0.12 205);
+      --teal-light: oklch(0.80 0.09 205); --teal-pale: oklch(0.95 0.04 205);
+      --sand: oklch(0.96 0.02 80); --orange: oklch(0.68 0.16 45);
+      --green: oklch(0.65 0.14 155); --white: #fafcfd;
+      --text: #0b1f3a; --text-mid: #3d5a7a; --text-light: #7a9ab8;
+      --border: oklch(0.90 0.02 210); --radius: 12px;
+      --shadow: 0 4px 32px oklch(0.3 0.08 220 / 0.13);
+      --shadow-lg: 0 16px 60px oklch(0.2 0.1 220 / 0.22);
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--white); color: var(--text); overflow-x: hidden; }
+
+    /* NAV */
+    .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; display: flex; align-items: center; justify-content: space-between; padding: 0 48px; height: 68px; background: rgba(11,31,58,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.07); }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-logo img { height: 40px; width: 40px; border-radius: 50%; object-fit: cover; }
+    .nav-logo-name { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 700; color: white; letter-spacing: 0.06em; line-height: 1; }
+    .nav-logo-sub { font-size: 10px; color: var(--teal-light); letter-spacing: 0.1em; text-transform: uppercase; }
+    .nav-right { display: flex; align-items: center; gap: 24px; }
+    .nav-right a { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 14px; transition: color 0.2s; }
+    .nav-right a:hover { color: white; }
+    .nav-phone { background: var(--orange); color: white !important; padding: 8px 18px; border-radius: 8px; font-weight: 500 !important; }
+
+    /* HERO */
+    .hero { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 100px 24px 60px; position: relative; overflow: hidden; }
+    .hero-bg { position: absolute; inset: 0; background: linear-gradient(145deg, #081828 0%, #0d2d4d 40%, #0a3d58 100%); }
+    .hero-bg::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 70% 60% at 70% 110%, oklch(0.60 0.12 205 / 0.3) 0%, transparent 60%), radial-gradient(ellipse 40% 50% at 5% 80%, oklch(0.55 0.10 230 / 0.2) 0%, transparent 55%); }
+    .hero-content { position: relative; z-index: 2; text-align: center; max-width: 700px; margin-bottom: 40px; }
+    .hero-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--teal-light); margin-bottom: 14px; }
+    .hero-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(40px, 6vw, 72px); font-weight: 600; line-height: 1.08; color: white; margin-bottom: 14px; }
+    .hero-title em { font-style: italic; color: var(--teal-light); }
+    .hero-sub { font-size: 16px; color: rgba(255,255,255,0.55); line-height: 1.65; font-weight: 300; }
+
+    /* SEARCH WIDGET */
+    .search-widget { position: relative; z-index: 2; background: white; border-radius: 20px; box-shadow: var(--shadow-lg); padding: 28px 32px; width: 100%; max-width: 860px; }
+    .sw-title { font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-light); margin-bottom: 18px; }
+    .sw-row { display: grid; grid-template-columns: 1.2fr 1.2fr 1fr 1fr auto; gap: 12px; align-items: end; }
+    .sw-field label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: var(--text-light); margin-bottom: 6px; }
+    .sw-field input, .sw-field select { width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); background: white; outline: none; transition: border-color 0.2s; appearance: none; }
+    .sw-field input:focus, .sw-field select:focus { border-color: var(--teal); }
+    .sw-search-btn { padding: 12px 28px; background: var(--navy); color: white; border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: background 0.2s, transform 0.15s; display: flex; align-items: center; gap: 8px; }
+    .sw-search-btn:hover { background: var(--teal); transform: translateY(-1px); }
+    .sw-note { font-size: 12px; color: var(--text-light); margin-top: 14px; text-align: center; }
+
+    /* RESULTS SECTION */
+    .results-section { padding: 0 48px 80px; max-width: 1200px; margin: 0 auto; }
+    .results-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; padding-top: 56px; }
+    .results-dest { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 600; color: var(--navy); }
+    .results-dates { font-size: 14px; color: var(--text-mid); margin-top: 2px; }
+    .results-tabs { display: flex; gap: 4px; background: var(--sand); border-radius: 12px; padding: 4px; }
+    .results-tab { padding: 10px 20px; border: none; background: none; border-radius: 9px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; color: var(--text-mid); cursor: pointer; transition: all 0.18s; display: flex; align-items: center; gap: 6px; }
+    .results-tab.active { background: white; color: var(--navy); box-shadow: var(--shadow); }
+    .results-tab .tab-count { background: var(--teal-pale); color: var(--teal); font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 99px; }
+    .results-tab.active .tab-count { background: var(--navy); color: white; }
+
+    /* LOADING */
+    .loading { display: flex; flex-direction: column; align-items: center; padding: 64px; gap: 16px; color: var(--text-mid); }
+    .loading-spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--teal); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* RESULT CARDS */
+    .result-list { display: flex; flex-direction: column; gap: 12px; }
+
+    /* Flight card */
+    .flight-card { background: white; border: 1.5px solid var(--border); border-radius: 14px; padding: 20px 24px; display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 24px; transition: border-color 0.2s, box-shadow 0.2s; }
+    .flight-card:hover { border-color: var(--teal); box-shadow: var(--shadow); }
+    .flight-card.selected { border-color: var(--teal); background: var(--teal-pale); }
+    .flight-airline { display: flex; align-items: center; gap: 12px; }
+    .flight-airline-logo { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; background: var(--sand); }
+    .flight-airline-name { font-size: 13px; font-weight: 600; color: var(--navy); }
+    .flight-num { font-size: 11px; color: var(--text-light); }
+    .flight-route { display: flex; align-items: center; gap: 16px; flex: 1; justify-content: center; }
+    .flight-time { text-align: center; }
+    .flight-time-main { font-size: 20px; font-weight: 600; color: var(--navy); font-variant-numeric: tabular-nums; }
+    .flight-time-city { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+    .flight-line { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+    .flight-line-bar { height: 1px; width: 100%; background: var(--border); position: relative; }
+    .flight-line-bar::after { content: '▶'; position: absolute; right: -5px; top: -7px; font-size: 10px; color: var(--text-light); }
+    .flight-duration { font-size: 11px; color: var(--text-light); }
+    .flight-stops { font-size: 11px; color: var(--orange); font-weight: 500; }
+    .flight-price-col { text-align: right; min-width: 120px; }
+    .flight-price { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 700; color: var(--navy); }
+    .flight-price-label { font-size: 11px; color: var(--text-light); }
+    .card-actions { display: flex; flex-direction: column; gap: 8px; min-width: 130px; }
+
+    /* Car card */
+    .car-card { background: white; border: 1.5px solid var(--border); border-radius: 14px; padding: 20px 24px; display: grid; grid-template-columns: auto 1fr auto auto; align-items: center; gap: 20px; transition: border-color 0.2s, box-shadow 0.2s; }
+    .car-card:hover { border-color: var(--teal); box-shadow: var(--shadow); }
+    .car-card.selected { border-color: var(--teal); background: var(--teal-pale); }
+    .car-company-badge { width: 52px; height: 52px; border-radius: 10px; background: var(--sand); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--navy); text-align: center; line-height: 1.2; }
+    .car-info { flex: 1; }
+    .car-model { font-size: 16px; font-weight: 600; color: var(--navy); }
+    .car-class { font-size: 12px; color: var(--text-light); margin-bottom: 8px; }
+    .car-features { display: flex; gap: 10px; flex-wrap: wrap; }
+    .car-feature { font-size: 11px; color: var(--text-mid); background: var(--sand); padding: 3px 8px; border-radius: 20px; }
+    .car-price-col { text-align: right; }
+    .car-price { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 700; color: var(--navy); }
+    .car-price-label { font-size: 11px; color: var(--text-light); }
+
+    /* Boat card */
+    .boat-card { background: white; border: 1.5px solid var(--border); border-radius: 14px; padding: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; transition: border-color 0.2s, box-shadow 0.2s; }
+    .boat-card.selected { border-color: var(--teal); background: var(--teal-pale); }
+    .boat-option { border: 1.5px solid var(--border); border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.18s; }
+    .boat-option:hover { border-color: var(--teal); }
+    .boat-option.selected { border-color: var(--teal); background: white; }
+    .boat-option-icon { font-size: 28px; margin-bottom: 10px; }
+    .boat-option-name { font-size: 16px; font-weight: 600; color: var(--navy); margin-bottom: 4px; }
+    .boat-option-desc { font-size: 13px; color: var(--text-mid); line-height: 1.6; margin-bottom: 12px; }
+    .boat-option-price { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 700; color: var(--navy); }
+    .boat-option-days { font-size: 12px; color: var(--text-light); }
+
+    /* Action buttons */
+    .btn-add { padding: 10px 18px; background: var(--navy); color: white; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
+    .btn-add:hover { background: var(--teal); }
+    .btn-add.added { background: var(--green); }
+    .btn-add.added:hover { background: oklch(0.58 0.14 155); }
+    .btn-external { padding: 10px 18px; background: white; color: var(--navy); border: 1.5px solid var(--border); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-block; text-align: center; white-space: nowrap; }
+    .btn-external:hover { border-color: var(--navy); background: var(--sand); }
+
+    /* TRIP CART */
+    .trip-cart { position: fixed; bottom: 24px; right: 24px; z-index: 300; width: 320px; background: white; border-radius: 18px; box-shadow: var(--shadow-lg); border: 1px solid var(--border); overflow: hidden; }
+    .cart-header { background: var(--navy); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+    .cart-header-left { display: flex; align-items: center; gap: 10px; }
+    .cart-icon { font-size: 18px; }
+    .cart-title { font-size: 14px; font-weight: 600; color: white; }
+    .cart-count { background: var(--orange); color: white; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 99px; }
+    .cart-total-preview { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 700; color: white; }
+    .cart-body { padding: 16px; display: flex; flex-direction: column; gap: 10px; max-height: 320px; overflow-y: auto; }
+    .cart-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px; background: var(--sand); border-radius: 10px; }
+    .cart-item-icon { font-size: 18px; flex-shrink: 0; }
+    .cart-item-info { flex: 1; min-width: 0; }
+    .cart-item-name { font-size: 13px; font-weight: 600; color: var(--navy); line-height: 1.3; }
+    .cart-item-detail { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+    .cart-item-price { font-size: 13px; font-weight: 700; color: var(--navy); white-space: nowrap; }
+    .cart-item-remove { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 16px; padding: 0 4px; line-height: 1; }
+    .cart-item-remove:hover { color: var(--navy); }
+    .cart-footer { padding: 12px 16px 16px; border-top: 1px solid var(--border); }
+    .cart-total-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+    .cart-total-label { font-size: 13px; font-weight: 500; color: var(--text-mid); }
+    .cart-total-amount { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 700; color: var(--navy); }
+    .cart-total-note { font-size: 11px; color: var(--text-light); margin-top: -8px; margin-bottom: 12px; }
+    .cart-book-btn { width: 100%; padding: 13px; background: var(--orange); color: white; border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .cart-book-btn:hover { background: oklch(0.63 0.16 45); }
+    .cart-empty { padding: 24px 16px; text-align: center; color: var(--text-light); font-size: 13px; }
+
+    /* INTRO SECTION (shown before search) */
+    .intro-section { padding: 80px 48px; max-width: 1200px; margin: 0 auto; }
+    .intro-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 48px; }
+    .intro-card { border-radius: 16px; border: 1px solid var(--border); padding: 28px; background: white; transition: box-shadow 0.2s; }
+    .intro-card:hover { box-shadow: var(--shadow); }
+    .intro-card-icon { font-size: 36px; margin-bottom: 14px; }
+    .intro-card-title { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: var(--navy); margin-bottom: 8px; }
+    .intro-card-desc { font-size: 14px; color: var(--text-mid); line-height: 1.7; font-weight: 300; }
+    .intro-card-partners { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+    .partner-tag { font-size: 11px; font-weight: 600; background: var(--sand); color: var(--text-mid); padding: 3px 10px; border-radius: 20px; }
+
+    /* FAQ */
+    .faq-section { padding: 80px 48px; background: var(--sand); }
+    .faq-inner { max-width: 760px; margin: 0 auto; }
+    .faq-item { border-bottom: 1px solid var(--border); }
+    .faq-q { width: 100%; background: none; border: none; text-align: left; padding: 18px 0; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; color: var(--navy); display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+    .faq-q:hover { color: var(--teal); }
+    .faq-icon { font-size: 20px; transition: transform 0.25s; color: var(--text-light); flex-shrink: 0; }
+    .faq-icon.open { transform: rotate(45deg); color: var(--teal); }
+    .faq-a { font-size: 14px; color: var(--text-mid); line-height: 1.75; max-height: 0; overflow: hidden; transition: max-height 0.35s ease, padding 0.25s; font-weight: 300; }
+    .faq-a.open { max-height: 300px; padding-bottom: 18px; }
+
+    /* FOOTER */
+    .footer { background: var(--navy); color: rgba(255,255,255,0.5); padding: 48px; text-align: center; }
+    .footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 700; color: white; letter-spacing: 0.06em; margin-bottom: 8px; }
+    .footer-links { display: flex; gap: 24px; justify-content: center; margin: 16px 0; }
+    .footer-links a { color: rgba(255,255,255,0.5); text-decoration: none; font-size: 13px; }
+    .footer-links a:hover { color: white; }
+    .footer-copy { font-size: 12px; }
+
+    /* MODAL */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(11,31,58,0.75); backdrop-filter: blur(6px); z-index: 500; display: flex; align-items: center; justify-content: center; padding: 24px; animation: fadeIn 0.2s; }
+    @keyframes fadeIn { from{opacity:0}to{opacity:1} }
+    .modal { background: white; border-radius: 24px; width: 100%; max-width: 580px; max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 80px rgba(0,0,0,0.3); animation: slideUp 0.25s ease; }
+    @keyframes slideUp { from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1} }
+    .modal-hdr { padding: 28px 32px 0; display: flex; align-items: center; justify-content: space-between; }
+    .modal-ttl { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 600; color: var(--navy); }
+    .modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-light); width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .modal-close:hover { background: var(--sand); }
+    .modal-body { padding: 24px 32px 32px; }
+    .modal-steps { display: flex; gap: 6px; margin-bottom: 24px; }
+    .modal-step { flex: 1; height: 3px; border-radius: 99px; background: var(--border); }
+    .modal-step.done { background: var(--teal); }
+    .modal-step.active { background: var(--navy); }
+    .modal-pkg-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+    .modal-pkg-item:last-of-type { border-bottom: none; }
+    .modal-pkg-label { color: var(--text-mid); display: flex; align-items: center; gap: 8px; }
+    .modal-pkg-val { font-weight: 600; color: var(--navy); }
+    .modal-total { display: flex; justify-content: space-between; align-items: baseline; padding: 16px 0; border-top: 2px solid var(--navy); margin-top: 8px; }
+    .modal-total-label { font-size: 14px; font-weight: 600; color: var(--navy); }
+    .modal-total-amount { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 700; color: var(--navy); }
+    .modal-note { font-size: 12px; color: var(--text-light); line-height: 1.6; margin-top: 8px; }
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-light); margin-bottom: 5px; }
+    .form-group input, .form-group textarea { width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); background: white; outline: none; transition: border-color 0.2s; }
+    .form-group input:focus, .form-group textarea:focus { border-color: var(--teal); }
+    .form-group textarea { min-height: 80px; resize: vertical; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+    .btn-back { flex: 1; padding: 13px; background: white; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; }
+    .btn-back:hover { border-color: var(--navy); }
+    .btn-next { flex: 2; padding: 13px; background: var(--orange); color: white; border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .btn-next:hover { background: oklch(0.63 0.16 45); }
+    .btn-next:disabled { opacity: 0.4; cursor: not-allowed; }
+    .confirm-screen { text-align: center; padding: 20px 0; }
+    .confirm-icon { font-size: 64px; margin-bottom: 16px; }
+    .confirm-title { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 600; color: var(--navy); margin-bottom: 8px; }
+    .confirm-ref { display: inline-block; background: var(--teal-pale); color: var(--teal); font-weight: 700; font-size: 14px; padding: 8px 20px; border-radius: 8px; margin: 12px 0; letter-spacing: 0.06em; }
+    .confirm-sub { font-size: 15px; color: var(--text-mid); line-height: 1.65; font-weight: 300; margin-bottom: 8px; }
+    .confirm-ext-links { display: flex; flex-direction: column; gap: 8px; margin: 20px 0; }
+    .confirm-ext-link { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--sand); border-radius: 10px; text-decoration: none; color: var(--navy); font-size: 14px; font-weight: 500; }
+    .confirm-ext-link:hover { background: var(--teal-pale); }
+    .confirm-ext-link span { color: var(--text-light); font-size: 12px; }
+
+    .section-label { font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--teal); margin-bottom: 10px; }
+    .section-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(28px, 3.5vw, 44px); font-weight: 600; color: var(--navy); line-height: 1.15; margin-bottom: 12px; }
+    .section-sub { font-size: 15px; color: var(--text-mid); line-height: 1.7; max-width: 520px; font-weight: 300; }
+
+    @media(max-width:900px){
+      .nav{padding:0 20px;} .sw-row{grid-template-columns:1fr 1fr;} .intro-grid{grid-template-columns:1fr;} .results-section{padding:0 20px 60px;} .intro-section{padding:60px 20px;} .faq-section{padding:60px 20px;} .flight-card{grid-template-columns:1fr;} .car-card{grid-template-columns:1fr;} .trip-cart{width:calc(100vw - 32px);right:16px;} .hero{padding:90px 16px 60px;}
+    }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
+
+// ─── Helpers ───────────────────────────────────────────────
+const today = () => new Date().toISOString().split('T')[0];
+const addDays = (s, n) => { const d = new Date(s); d.setDate(d.getDate() + n); return d.toISOString().split('T')[0]; };
+const fmtDate = s => s ? new Date(s + 'T00:00').toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) : '';
+const fmtShort = s => s ? new Date(s + 'T00:00').toLocaleDateString('en-US', {month:'short',day:'numeric'}) : '';
+const diffDays = (a, b) => Math.max(1, Math.round((new Date(b) - new Date(a)) / 86400000));
+const genRef = () => 'RA-' + Math.random().toString(36).slice(2,8).toUpperCase();
+
+const AIRLINE_ICONS = { Delta:'🔵', American:'🔴', Southwest:'🟡', United:'🌐', JetBlue:'🔷', Spirit:'🟢', Frontier:'🌿', Alaska:'❄️' };
+const CAR_COLORS = { Enterprise:'#00A04A', Hertz:'#FFD100', Budget:'#E31837', Alamo:'#0047AB', Avis:'#CC0000', National:'#006400' };
+
+// ─── AI Search ─────────────────────────────────────────────
+async function searchFlights(from, to, date, pax) {
+  return [
+    {airline:'Delta',flightNum:'DL1842',departTime:'6:45 AM',arriveTime:'9:20 AM',duration:'2h 35m',stops:0,stopCity:null,pricePerPerson:289,class:'Economy'},
+    {airline:'American',flightNum:'AA3021',departTime:'10:15 AM',arriveTime:'1:45 PM',duration:'3h 30m',stops:1,stopCity:'Charlotte',pricePerPerson:198,class:'Economy'},
+    {airline:'Southwest',flightNum:'WN882',departTime:'2:00 PM',arriveTime:'4:55 PM',duration:'2h 55m',stops:0,stopCity:null,pricePerPerson:224,class:'Economy'},
+    {airline:'United',flightNum:'UA4401',departTime:'5:30 PM',arriveTime:'8:10 PM',duration:'2h 40m',stops:0,stopCity:null,pricePerPerson:312,class:'Economy'},
+    {airline:'JetBlue',flightNum:'B61104',departTime:'8:00 PM',arriveTime:'11:30 PM',duration:'3h 30m',stops:1,stopCity:'Orlando',pricePerPerson:167,class:'Economy'},
+  ];
+}
+
+async function searchCars(destination, pickupDate, returnDate) {
+  return [
+    {company:'Enterprise',carClass:'Economy',carModel:'Toyota Corolla',pricePerDay:49,features:['Unlimited miles','Free cancellation','A/C']},
+    {company:'Hertz',carClass:'Compact',carModel:'Honda Civic',pricePerDay:58,features:['Unlimited miles','GPS available','Automatic']},
+    {company:'Budget',carClass:'Standard',carModel:'Chevrolet Malibu',pricePerDay:65,features:['Seats 5','Free cancellation','A/C']},
+    {company:'Alamo',carClass:'SUV',carModel:'Ford Explorer',pricePerDay:89,features:['Seats 7','GPS available','Unlimited miles']},
+    {company:'Avis',carClass:'Luxury',carModel:'Cadillac CT5',pricePerDay:149,features:['Premium sound','Heated seats','Concierge']},
+  ];
+}
+
+// ─── Build external booking links ──────────────────────────
+function expediaFlightUrl(from, to, outDate, retDate, pax) {
+  const fmt = d => d ? d.replace(/-/g,'') : '';
+  return `https://www.expedia.com/Flights-Search?trip=roundtrip&leg1=from:${encodeURIComponent(from)},to:${encodeURIComponent(to)},departure:${fmt(outDate)}TANYT&leg2=from:${encodeURIComponent(to)},to:${encodeURIComponent(from)},departure:${fmt(retDate)}TANYT&passengers=adults:${pax}`;
+}
+function enterpriseUrl(pickupDate, returnDate) {
+  return `https://www.enterprise.com/en/car-rental/deeplinking/enterprise.html?bid=028&pickupDateString=${pickupDate}&returnDateString=${returnDate}&pickUpCode=MLB`;
+}
+const CAR_URLS = {
+  Enterprise: (p, r) => `https://www.enterprise.com/en/car-rental/deeplinking/enterprise.html?bid=028&pickupDateString=${p}&returnDateString=${r}&pickUpCode=MLB`,
+  Hertz: () => 'https://www.hertz.com/rentacar/reservation/',
+  Budget: () => 'https://www.budget.com/en/home',
+  Alamo: () => 'https://www.alamo.com/en_US/car-rental/home.html',
+  Avis: () => 'https://www.avis.com/en/home',
+  National: () => 'https://www.nationalcar.com/',
+};
+
+// ─── FAQ ───────────────────────────────────────────────────
+const FAQS = [
+  {q:'How does the trip package work?', a:'Search for your destination and travel dates. Add a flight, boat rental, and/or rental car to your trip cart. Our team handles the coordination — you get one point of contact and one confirmation for your entire trip.'},
+  {q:'Can I book just one service?', a:'Absolutely. You can book a boat rental alone, or add just a flight, or just a car. The package is optional — mix and match whatever you need.'},
+  {q:'Are the flight results real?', a:'Flight results are searched and linked directly to Expedia for final booking. Prices shown are estimates — final pricing is confirmed on Expedia at checkout.'},
+  {q:'Which car rental companies do you work with?', a:'We link to Enterprise, Hertz, Budget, Alamo, Avis, and National. You can compare options and we\'ll direct you to the best available rate for your dates.'},
+  {q:'What does the boat rental include?', a:'All Rose Air boat rentals include life jackets, safety gear, fuel allowance, and an orientation. The captained option includes a certified local captain who knows Melbourne\'s best waterways.'},
+  {q:'What is your cancellation policy?', a:'Rose Air boat cancellations 48+ hours in advance receive a full refund. Third-party bookings (flights, cars) follow the respective provider\'s policy. We always try to help rebook when plans change.'},
+];
+
+// ─── Components ────────────────────────────────────────────
+function FaqItem({ q, a }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="faq-item">
+      <button className="faq-q" onClick={() => setOpen(o => !o)}>
+        {q}<span className={`faq-icon${open?' open':''}`}>+</span>
+      </button>
+      <div className={`faq-a${open?' open':''}`}>{a}</div>
+    </div>
+  );
+}
+
+// ─── Search Form ───────────────────────────────────────────
+function SearchWidget({ onSearch, loading }) {
+  const [from, setFrom] = useState('Melbourne, FL');
+  const [to, setTo] = useState('');
+  const [outDate, setOutDate] = useState(addDays(today(), 7));
+  const [retDate, setRetDate] = useState(addDays(today(), 14));
+  const [pax, setPax] = useState(2);
+
+  const submit = () => {
+    if (!to.trim()) return;
+    onSearch({ from, to: to.trim(), outDate, retDate, pax });
+  };
+
+  return (
+    <div className="search-widget">
+      <div className="sw-title">Plan your complete trip</div>
+      <div className="sw-row">
+        <div className="sw-field">
+          <label>From</label>
+          <input type="text" value={from} onChange={e => setFrom(e.target.value)} placeholder="Melbourne, FL" />
+        </div>
+        <div className="sw-field">
+          <label>Destination</label>
+          <input type="text" value={to} onChange={e => setTo(e.target.value)} placeholder="Where to?" />
+        </div>
+        <div className="sw-field">
+          <label>Departure</label>
+          <input type="date" value={outDate} min={today()} onChange={e => { setOutDate(e.target.value); if (e.target.value >= retDate) setRetDate(addDays(e.target.value, 7)); }} />
+        </div>
+        <div className="sw-field">
+          <label>Return</label>
+          <input type="date" value={retDate} min={addDays(outDate, 1)} onChange={e => setRetDate(e.target.value)} />
+        </div>
+        <div>
+          <label style={{display:'block',fontSize:11,fontWeight:600,letterSpacing:'0.09em',textTransform:'uppercase',color:'var(--text-light)',marginBottom:6}}>Passengers</label>
+          <select style={{padding:'12px 14px',border:'1.5px solid var(--border)',borderRadius:10,fontFamily:"'DM Sans',sans-serif",fontSize:14,color:'var(--text)',background:'white',outline:'none',appearance:'none',width:'100%'}} value={pax} onChange={e => setPax(Number(e.target.value))}>
+            {[1,2,3,4,5,6,7,8].map(n => <option key={n} value={n}>{n} pax</option>)}
+          </select>
+        </div>
+        <button className="sw-search-btn" onClick={submit} disabled={loading || !to.trim()}>
+          {loading ? '⏳' : '🔍'} {loading ? 'Searching…' : 'Search'}
+        </button>
+      </div>
+      <div className="sw-note">✈️ Flights via Expedia &nbsp;·&nbsp; 🚗 Cars via Enterprise, Hertz & more &nbsp;·&nbsp; ⛵ Boats from Rose Air</div>
+    </div>
+  );
+}
+
+// ─── Flight Results ────────────────────────────────────────
+function FlightResults({ flights, selected, onSelect, search }) {
+  if (!flights) return null;
+  const expUrl = expediaFlightUrl(search.from, search.to, search.outDate, search.retDate, search.pax);
+  return (
+    <div className="result-list">
+      {flights.map((f, i) => {
+        const total = f.pricePerPerson * search.pax;
+        const isSel = selected?.id === `flight-${i}`;
+        return (
+          <div key={i} className={`flight-card${isSel?' selected':''}`}>
+            <div className="flight-airline">
+              <div className="flight-airline-logo">{AIRLINE_ICONS[f.airline] || '✈️'}</div>
+              <div>
+                <div className="flight-airline-name">{f.airline}</div>
+                <div className="flight-num">{f.flightNum} · {f.class}</div>
+              </div>
+            </div>
+            <div className="flight-route">
+              <div className="flight-time">
+                <div className="flight-time-main">{f.departTime}</div>
+                <div className="flight-time-city">{search.from.split(',')[0]}</div>
+              </div>
+              <div className="flight-line">
+                <div className="flight-line-bar"></div>
+                <div className="flight-duration">{f.duration}</div>
+                <div className="flight-stops">{f.stops === 0 ? 'Nonstop' : `${f.stops} stop · ${f.stopCity}`}</div>
+              </div>
+              <div className="flight-time">
+                <div className="flight-time-main">{f.arriveTime}</div>
+                <div className="flight-time-city">{search.to.split(',')[0]}</div>
+              </div>
+            </div>
+            <div className="flight-price-col">
+              <div className="flight-price">${total.toLocaleString()}</div>
+              <div className="flight-price-label">${f.pricePerPerson}/person · {search.pax} pax</div>
+            </div>
+            <div className="card-actions">
+              <button className={`btn-add${isSel?' added':''}`} onClick={() => onSelect(isSel ? null : { id:`flight-${i}`, type:'flight', icon:'✈️', name:`${f.airline} ${f.flightNum}`, detail:`${fmtShort(search.outDate)} · ${f.departTime} → ${f.arriveTime}`, price: total, bookUrl: expUrl })}>
+                {isSel ? '✓ Added' : '+ Add to Trip'}
+              </button>
+              <a className="btn-external" href={expUrl} target="_blank" rel="noopener">Book on Expedia ↗</a>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── Car Results ───────────────────────────────────────────
+function CarResults({ cars, selected, onSelect, search }) {
+  if (!cars) return null;
+  const days = diffDays(search.outDate, search.retDate);
+  return (
+    <div className="result-list">
+      {cars.map((c, i) => {
+        const total = c.pricePerDay * days;
+        const isSel = selected?.id === `car-${i}`;
+        const bookUrl = (CAR_URLS[c.company] || (() => '#'))(search.outDate, search.retDate);
+        const initials = c.company.slice(0, 2).toUpperCase();
+        const bg = CAR_COLORS[c.company] || '#666';
+        return (
+          <div key={i} className={`car-card${isSel?' selected':''}`}>
+            <div className="car-company-badge" style={{background: bg + '22', color: bg, border: `1.5px solid ${bg}44`}}>{initials}</div>
+            <div className="car-info">
+              <div className="car-model">{c.carModel}</div>
+              <div className="car-class">{c.company} · {c.carClass}</div>
+              <div className="car-features">{(c.features||[]).map(f => <span key={f} className="car-feature">{f}</span>)}</div>
+            </div>
+            <div className="car-price-col">
+              <div className="car-price">${total.toLocaleString()}</div>
+              <div className="car-price-label">${c.pricePerDay}/day · {days} day{days>1?'s':''}</div>
+            </div>
+            <div className="card-actions">
+              <button className={`btn-add${isSel?' added':''}`} onClick={() => onSelect(isSel ? null : { id:`car-${i}`, type:'car', icon:'🚗', name:`${c.company} · ${c.carModel}`, detail:`${fmtShort(search.outDate)} – ${fmtShort(search.retDate)} · ${days}d`, price: total, bookUrl })}>
+                {isSel ? '✓ Added' : '+ Add to Trip'}
+              </button>
+              <a className="btn-external" href={bookUrl} target="_blank" rel="noopener">Book on {c.company} ↗</a>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── Boat Results ──────────────────────────────────────────
+function BoatResults({ selected, onSelect, search }) {
+  const days = diffDays(search.outDate, search.retDate);
+  const opts = [
+    { id:'boat-self', icon:'⛵', name:'Self-Guided Rental', desc:'Take the helm yourself. Perfect for experienced boaters exploring Melbourne\'s Indian River Lagoon. Full safety gear included.', ppd: 500 },
+    { id:'boat-cap', icon:'👨‍✈️', name:'Captained Experience', desc:'Sit back and enjoy. A certified local captain guides you to the best spots — great for groups and first-time boaters.', ppd: 700 },
+  ];
+  return (
+    <div className="result-list">
+      {opts.map(o => {
+        const total = o.ppd * days;
+        const isSel = selected?.id === o.id;
+        return (
+          <div key={o.id} className={`boat-card${isSel?' selected':''}`} style={{gridTemplateColumns:'1fr auto',alignItems:'center'}}>
+            <div style={{display:'flex',gap:16,alignItems:'flex-start'}}>
+              <div style={{fontSize:36,flexShrink:0}}>{o.icon}</div>
+              <div>
+                <div style={{fontSize:18,fontWeight:600,color:'var(--navy)',fontFamily:"'Cormorant Garamond',serif",marginBottom:4}}>{o.name}</div>
+                <div style={{fontSize:14,color:'var(--text-mid)',lineHeight:1.6,marginBottom:12}}>{o.desc}</div>
+                <div style={{fontSize:12,color:'var(--text-light)',display:'flex',gap:12}}>
+                  <span>✓ Life jackets &amp; safety gear</span>
+                  <span>✓ Fuel allowance</span>
+                  <span>✓ Full orientation</span>
+                </div>
+              </div>
+            </div>
+            <div style={{textAlign:'right',display:'flex',flexDirection:'column',alignItems:'flex-end',gap:8}}>
+              <div>
+                <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:32,fontWeight:700,color:'var(--navy)'}}>${total.toLocaleString()}</div>
+                <div style={{fontSize:12,color:'var(--text-light)'}}>${o.ppd}/day · {days} day{days>1?'s':''}</div>
+              </div>
+              <button className={`btn-add${isSel?' added':''}`} style={{minWidth:130}} onClick={() => onSelect(isSel ? null : { id:o.id, type:'boat', icon:o.icon, name:`Rose Air · ${o.name}`, detail:`${fmtShort(search.outDate)} – ${fmtShort(search.retDate)} · ${days}d`, price: total })}>
+                {isSel ? '✓ Added' : '+ Add to Trip'}
+              </button>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── Trip Cart ─────────────────────────────────────────────
+function TripCart({ items, onRemove, onCheckout }) {
+  const [open, setOpen] = useState(true);
+  if (items.length === 0) return null;
+  const total = items.reduce((s, i) => s + i.price, 0);
+  return (
+    <div className="trip-cart">
+      <div className="cart-header" onClick={() => setOpen(o => !o)}>
+        <div className="cart-header-left">
+          <span className="cart-icon">🧳</span>
+          <span className="cart-title">My Trip</span>
+          <span className="cart-count">{items.length}</span>
+        </div>
+        <div style={{display:'flex',alignItems:'center',gap:12}}>
+          <span className="cart-total-preview">${total.toLocaleString()}</span>
+          <span style={{color:'rgba(255,255,255,0.5)',fontSize:12}}>{open?'▾':'▴'}</span>
+        </div>
+      </div>
+      {open && (
+        <>
+          <div className="cart-body">
+            {items.map(item => (
+              <div key={item.id} className="cart-item">
+                <span className="cart-item-icon">{item.icon}</span>
+                <div className="cart-item-info">
+                  <div className="cart-item-name">{item.name}</div>
+                  <div className="cart-item-detail">{item.detail}</div>
+                </div>
+                <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:4}}>
+                  <span className="cart-item-price">${item.price.toLocaleString()}</span>
+                  <button className="cart-item-remove" onClick={() => onRemove(item.id)}>×</button>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="cart-footer">
+            <div className="cart-total-row">
+              <span className="cart-total-label">Package Total</span>
+              <span className="cart-total-amount">${total.toLocaleString()}</span>
+            </div>
+            <div className="cart-total-note">Flights finalized at Expedia · Cars at partner sites</div>
+            <button className="cart-book-btn" onClick={onCheckout}>Book Full Package →</button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ─── Checkout Modal ────────────────────────────────────────
+function CheckoutModal({ items, onClose }) {
+  const [step, setStep] = useState(0);
+  const [form, setForm] = useState({ name:'', email:'', phone:'' });
+  const [ref] = useState(genRef);
+  const total = items.reduce((s, i) => s + i.price, 0);
+  const valid = form.name && form.email && form.phone;
+  const flightItem = items.find(i => i.type === 'flight');
+  const carItem = items.find(i => i.type === 'car');
+
+  return (
+    <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className="modal">
+        <div className="modal-hdr">
+          <div className="modal-ttl">{step === 2 ? 'Trip Confirmed!' : 'Book Your Package'}</div>
+          <button className="modal-close" onClick={onClose}>✕</button>
+        </div>
+        <div className="modal-body">
+          {step < 2 && <div className="modal-steps">{[0,1].map(i => <div key={i} className={`modal-step${i<step?' done':i===step?' active':''}`}></div>)}</div>}
+
+          {step === 0 && (
+            <>
+              <div className="section-label" style={{marginBottom:14}}>Your Trip Summary</div>
+              {items.map(item => (
+                <div key={item.id} className="modal-pkg-item">
+                  <span className="modal-pkg-label"><span style={{fontSize:18}}>{item.icon}</span>{item.name}<br /><span style={{fontSize:12,color:'var(--text-light)',display:'block'}}>{item.detail}</span></span>
+                  <span className="modal-pkg-val">${item.price.toLocaleString()}</span>
+                </div>
+              ))}
+              <div className="modal-total">
+                <span className="modal-total-label">Total Package</span>
+                <span className="modal-total-amount">${total.toLocaleString()}</span>
+              </div>
+              <div className="modal-note">* Flight and car rental bookings will be directed to partner sites after confirmation. Rose Air coordinates your full itinerary.</div>
+              <div className="modal-actions">
+                <button className="btn-back" onClick={onClose}>Cancel</button>
+                <button className="btn-next" onClick={() => setStep(1)}>Continue →</button>
+              </div>
+            </>
+          )}
+
+          {step === 1 && (
+            <>
+              <div className="section-label" style={{marginBottom:14}}>Your Details</div>
+              {['name','email','phone'].map(k => (
+                <div key={k} className="form-group">
+                  <label>{k === 'name' ? 'Full Name' : k === 'email' ? 'Email Address' : 'Phone Number'}</label>
+                  <input type={k === 'email' ? 'email' : k === 'phone' ? 'tel' : 'text'} value={form[k]} onChange={e => setForm({...form,[k]:e.target.value})} placeholder={k === 'name' ? 'Jane Smith' : k === 'email' ? 'you@example.com' : '(555) 000-0000'} />
+                </div>
+              ))}
+              <div className="modal-actions">
+                <button className="btn-back" onClick={() => setStep(0)}>← Back</button>
+                <button className="btn-next" disabled={!valid} style={{opacity:valid?1:0.4,cursor:valid?'pointer':'not-allowed'}} onClick={() => setStep(2)}>Confirm Package →</button>
+              </div>
+            </>
+          )}
+
+          {step === 2 && (
+            <div className="confirm-screen">
+              <div className="confirm-icon">🎉</div>
+              <div className="confirm-title">You're all set, {form.name.split(' ')[0]}!</div>
+              <div className="confirm-ref">{ref}</div>
+              <div className="confirm-sub">Your Rose Air trip package has been confirmed. A coordinator will contact {form.email} within 1 hour to finalize all bookings.</div>
+              {(flightItem || carItem) && (
+                <>
+                  <div className="section-label" style={{marginTop:20,marginBottom:10}}>Complete Your Bookings</div>
+                  <div className="confirm-ext-links">
+                    {flightItem && <a className="confirm-ext-link" href={flightItem.bookUrl} target="_blank" rel="noopener"><span>✈️ {flightItem.name}</span><span>Finalize on Expedia ↗</span></a>}
+                    {carItem && <a className="confirm-ext-link" href={carItem.bookUrl} target="_blank" rel="noopener"><span>🚗 {carItem.name}</span><span>Finalize with partner ↗</span></a>}
+                  </div>
+                </>
+              )}
+              <button className="btn-next" style={{width:'100%',marginTop:8}} onClick={onClose}>Done</button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main App ──────────────────────────────────────────────
+function App() {
+  const [search, setSearch] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [flights, setFlights] = useState(null);
+  const [cars, setCars] = useState(null);
+  const [activeTab, setActiveTab] = useState('flights');
+  const [cartItems, setCartItems] = useState({});
+  const [checkout, setCheckout] = useState(false);
+
+  const handleSearch = async (params) => {
+    setSearch(params);
+    setLoading(true);
+    setFlights(null);
+    setCars(null);
+    setActiveTab('flights');
+    document.getElementById('results')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const [f, c] = await Promise.all([
+      searchFlights(params.from, params.to, params.outDate, params.pax),
+      searchCars(params.to, params.outDate, params.retDate),
+    ]);
+    setFlights(f);
+    setCars(c);
+    setLoading(false);
+  };
+
+  const selectItem = (item) => {
+    setCartItems(prev => {
+      const next = { ...prev };
+      if (item === null) return next;
+      const type = item.id.split('-')[0];
+      // Remove any previous item of same type
+      Object.keys(next).forEach(k => { if (k.startsWith(type)) delete next[k]; });
+      if (item) next[item.id] = item;
+      return next;
+    });
+  };
+
+  const removeItem = (id) => setCartItems(prev => { const next = { ...prev }; delete next[id]; return next; });
+
+  const cartList = Object.values(cartItems);
+
+  // Get selected item for each type
+  const selectedFlight = cartList.find(i => i.type === 'flight') || null;
+  const selectedCar = cartList.find(i => i.type === 'car') || null;
+  const selectedBoat = cartList.find(i => i.type === 'boat') || null;
+
+  const tabs = [
+    { id: 'flights', label: 'Flights', icon: '✈️', count: flights?.length },
+    { id: 'boats', label: 'Boat Rentals', icon: '⛵', count: 2 },
+    { id: 'cars', label: 'Car Rentals', icon: '🚗', count: cars?.length },
+  ];
+
+  return (
+    <>
+      {/* NAV */}
+      <nav className="nav">
+        <a href="#top" className="nav-logo">
+          <div style={{width:40,height:40,borderRadius:'50%',background:'var(--orange)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:20}}>✈️</div>
+          <div>
+            <div className="nav-logo-name">ROSEAIR</div>
+            <div className="nav-logo-sub">Melbourne, Florida</div>
+          </div>
+        </a>
+        <div className="nav-right">
+          <a href="#services">Services</a>
+          <a href="#faq">FAQ</a>
+          <a href="tel:8134180477" className="nav-phone">813-418-0477</a>
+        </div>
+      </nav>
+
+      {/* HERO */}
+      <div className="hero" id="top">
+        <div className="hero-bg"></div>
+        <div className="hero-content">
+          <div className="hero-eyebrow">Melbourne, Florida · Open 24/7</div>
+          <h1 className="hero-title">Plan Your <em>Whole</em><br />Trip Here</h1>
+          <p className="hero-sub">Flights, boats &amp; rental cars — all in one place. One search, one package, one team.</p>
+        </div>
+        <SearchWidget onSearch={handleSearch} loading={loading} />
+      </div>
+
+      {/* RESULTS */}
+      {(search || loading) && (
+        <div id="results">
+          <div className="results-section">
+            {search && (
+              <div className="results-header">
+                <div>
+                  <div className="results-dest">{search.from} → {search.to}</div>
+                  <div className="results-dates">{fmtDate(search.outDate)} – {fmtDate(search.retDate)} · {search.pax} passenger{search.pax > 1 ? 's' : ''}</div>
+                </div>
+                <div className="results-tabs">
+                  {tabs.map(t => (
+                    <button key={t.id} className={`results-tab${activeTab === t.id ? ' active' : ''}`} onClick={() => setActiveTab(t.id)}>
+                      {t.icon} {t.label}
+                      {t.count && <span className="tab-count">{t.count}</span>}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {loading && <div className="loading"><div className="loading-spinner"></div><div>Searching flights &amp; cars…</div></div>}
+
+            {!loading && search && (
+              <>
+                {activeTab === 'flights' && <FlightResults flights={flights} selected={selectedFlight} onSelect={item => { const next = {...cartItems}; Object.keys(next).forEach(k => { if (k.startsWith('flight')) delete next[k]; }); if(item) next[item.id] = item; setCartItems(next); }} search={search} />}
+                {activeTab === 'boats' && <BoatResults selected={selectedBoat} onSelect={item => { const next = {...cartItems}; Object.keys(next).forEach(k => { if (k.startsWith('boat')) delete next[k]; }); if(item) next[item.id] = item; setCartItems(next); }} search={search} />}
+                {activeTab === 'cars' && <CarResults cars={cars} selected={selectedCar} onSelect={item => { const next = {...cartItems}; Object.keys(next).forEach(k => { if (k.startsWith('car')) delete next[k]; }); if(item) next[item.id] = item; setCartItems(next); }} search={search} />}
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* SERVICES INTRO */}
+      {!search && (
+        <section className="intro-section" id="services">
+          <div className="section-label">Everything In One Trip</div>
+          <div className="section-title">Fly, Sail &amp; Drive —<br />We Handle It All</div>
+          <p className="section-sub">Search above to plan your complete trip. Rose Air brings together flights, boat rentals, and car hire so you never have to juggle multiple bookings.</p>
+          <div className="intro-grid">
+            {[
+              { icon:'✈️', title:'Flights', desc:'Search hundreds of airlines for the best fares on your travel dates. Linked directly to Expedia for final booking with real-time pricing.', partners:['Delta','American','Southwest','United','JetBlue','Spirit'] },
+              { icon:'⛵', title:'Boat Rentals', desc:'Rose Air\'s own fleet, based in Melbourne, FL. Self-guided or with a certified local captain. Perfect for the Indian River Lagoon and beyond.', partners:['Self-guided $500/day','Captained $700/day'] },
+              { icon:'🚗', title:'Car Rentals', desc:'Compare rates across the top rental companies for your destination. Filter by class, compare features, and link directly to book.', partners:['Enterprise','Hertz','Budget','Alamo','Avis'] },
+            ].map(s => (
+              <div key={s.title} className="intro-card">
+                <div className="intro-card-icon">{s.icon}</div>
+                <div className="intro-card-title">{s.title}</div>
+                <div className="intro-card-desc">{s.desc}</div>
+                <div className="intro-card-partners">{s.partners.map(p => <span key={p} className="partner-tag">{p}</span>)}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* FAQ */}
+      <section className="faq-section" id="faq">
+        <div className="faq-inner">
+          <div className="section-label">Questions</div>
+          <div className="section-title" style={{marginBottom:32}}>FAQ</div>
+          <div>{FAQS.map(f => <FaqItem key={f.q} {...f} />)}</div>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="footer">
+        <div className="footer-logo">ROSEAIR</div>
+        <div style={{color:'rgba(255,255,255,0.4)',fontSize:13,marginBottom:16}}>Melbourne, Florida · Flights · Boats · Cars · Open 24/7</div>
+        <div className="footer-links">
+          <a href="#top">Search</a>
+          <a href="#faq">FAQ</a>
+          <a href="tel:8134180477">813-418-0477</a>
+        </div>
+        <div className="footer-copy">© 2026 Rosair LLC. All rights reserved.</div>
+      </footer>
+
+      {/* CART */}
+      <TripCart items={cartList} onRemove={removeItem} onCheckout={() => setCheckout(true)} />
+
+      {/* CHECKOUT */}
+      {checkout && <CheckoutModal items={cartList} onClose={() => setCheckout(false)} />}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
